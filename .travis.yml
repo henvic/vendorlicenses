@@ -1,0 +1,17 @@
+language: go
+go:
+  - 1.9
+before_install:
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
+  - go get github.com/kisielk/errcheck
+  - go get github.com/golang/lint/golint
+  - go get honnef.co/go/tools/cmd/megacheck
+script:
+  - errcheck $(go list ./... | grep -v /vendor/)
+  - test -z "$(golint ./... | grep -v "^vendor" | tee /dev/stderr)"
+  - go vet $(go list ./... | grep -v /vendor/)
+  - megacheck ./...
+  - go test ./... -race
+after_success:
+  - sh $(pwd)/scripts/coverage.sh --coveralls
